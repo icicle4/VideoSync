@@ -22,31 +22,28 @@ from openpose_wrapper import openpose_25_kp
 
 
 class LocConvert:
-    def __init__(self, M):
-        self.M = M
+    def __init__(self, P):
+        self.P = P
 
-    def bbox_to_loc(self, bbox):
-        xmin, ymin, xmax, ymax = bbox
-        foot_pos = [(xmin + xmax) / 2, ymax]
-        loc = self.PerspectiveTransform(foot_pos)
-        return loc
+    def solve_3d_point_with_z(self, image_point):
+        P = self.P
+        x, y, known_z = image_point
 
-    def pose_to_loc(self, pose):
-        ankle_p = pose[-1]
-        loc = self.PerspectiveTransform(ankle_p)
-        return loc
+        b = np.asarray(
+            [[- known_z * P[0, 2] - P[0, 3]], [- known_z * P[1, 2] - P[1, 3]], [- known_z * P[2, 2] - P[2, 3]]])
+        a = np.array(
+            [
+                [P[0, 0], P[0, 1], -x],
+                [P[1, 0], P[1, 1], -y],
+                [P[2, 0], P[2, 1], -1]
+            ]
+        )
+
+        known_x, known_y, s = np.linalg.solve(a, b)
+        known_x, known_y, s = float(known_x), float(known_y), float(s)
+        return known_x, known_y, known_z
 
     def p_to_loc(self, point):
-        loc = self.PerspectiveTransform(point)
-        return loc
-
-    def PerspectiveTransform(self, obj):
-        """
-        :param obj:
-        :param M:
-        :return:
-        """
-        x, y = obj
-        x_new, y_new, t = np.matrix(self.M) * np.matrix([x, y, 1]).T
-        x_new, y_new = x_new / t, y_new / t
-        return [round(float(x_new), 1), round(float(y_new), 1)]
+        img_x, img_y = point
+        pos_3d = self.solve_3d_point_with_z([img_x, img_y, 0])
+        return pos_3d[:2]

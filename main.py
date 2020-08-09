@@ -115,8 +115,8 @@ if __name__ == '__main__':
     video2 = '/home/icicle/Desktop/侧中.mp4'
     # 我们假设视频的对齐误差为2s
 
-    cam1_loc_converter = LocConvert(cfg.front_M)
-    cam2_loc_converter = LocConvert(cfg.mid_M)
+    cam1_loc_converter = LocConvert(cfg.front_P)
+    cam2_loc_converter = LocConvert(cfg.mid_P)
 
     debug = True
     # 从每段视频的开始处，获取4s内人的位置分布情况
