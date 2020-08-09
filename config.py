@@ -1,9 +1,17 @@
 import numpy as np
 import cv2
+import json
 
 
 class Config:
     def __init__(self):
+
+        with open('projects.json', 'r') as f:
+            Ps = json.load(f)
+
+        self.front_P = Ps['0']['P']
+        self.mid_P = Ps['2']['P']
+
         self.side_front_image_objs = np.array(
             [[678, 651],
              [718, 1010],
