@@ -6,7 +6,7 @@ import sys
 try:
     params = dict()
     params["model_folder"] = "/home/icicle/openpose/models"
-    # params['net_resolution'] = "-1x720"
+    params['net_resolution'] = "-1x720"
     sys.path.append('/home/icicle/openpose/build/python/')
     from openpose import pyopenpose as op
     opWrapper = op.WrapperPython()

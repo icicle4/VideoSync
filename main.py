@@ -1,9 +1,10 @@
-from pose_info import HumanDetector, LocConvert
+from pose_info import LocConvert
 from config import Config
 import cv2
 import numpy as np
 import os
 from match_cost import video_loc_match_score
+from openpose_wrapper import openpose_25_kp
 
 cfg = Config()
 
@@ -54,7 +55,7 @@ def locs_in_image(img_or_img_path, detector, loc_converter, debug, writer):
     #         )
     #
     # trans = cv2.getAffineTransform(dst, src)
-    poses = detector.detect(img)
+    poses = detector(img)
 
     locs = []
     for pose in poses:
@@ -70,7 +71,7 @@ def locs_in_image(img_or_img_path, detector, loc_converter, debug, writer):
             loc = loc_converter.p_to_loc(right_ankle[:2])
 
             img_save = cv2.circle(img_save, (int(right_ankle[0]), int(right_ankle[1])), 4, (0, 0, 255))
-            img_save = cv2.putText(img_save, str(f"{loc[0]} {loc[1]}"), (int(right_ankle[0]), int(right_ankle[1])),
+            img_save = cv2.putText(img_save, str("{} {}".format(loc[0], loc[1])), (int(right_ankle[0]), int(right_ankle[1])),
                               cv2.FONT_HERSHEY_SIMPLEX, 0.6, (0, 255, 0))
             locs.append([*loc, score])
 
@@ -103,15 +104,15 @@ def early_locs_in_video(video_path, duration, detector, loc_converter, debug, de
 def debug_video_path(video_path):
     video_dir = os.path.dirname(video_path)
     video_name = os.path.basename(video_path).split('.')[0]
-    debug_video_path = os.path.join(video_dir, f'{video_name}_debug.mp4')
+    debug_video_path = os.path.join(video_dir, '{}_debug.mp4'.format(video_name))
     return debug_video_path
 
 
 if __name__ == '__main__':
-    human_detector = HumanDetector()
+    human_detector = openpose_25_kp
 
-    video1 = '/Users/linda/Downloads/video_sync_test/前.mp4'
-    video2 = '/Users/linda/Downloads/video_sync_test/侧中.mp4'
+    video1 = '/home/icicle/Desktop/前.mp4'
+    video2 = '/home/icicle/Desktop/侧中.mp4'
     # 我们假设视频的对齐误差为2s
 
     cam1_loc_converter = LocConvert(cfg.front_M)
